@@ -183,7 +183,18 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  // int a = (x >> 16) & x; // 16 bits
+  // int b = (a >> 8) & a; // 8 bits
+  // int c = b & 0xAA; // keep only odd-numbered bits
+  // int d = (c >> 5) | c; // merge into 4 bits (all one)
+  // int z = (~0xF) | d; // set rest to one
+  // return !(~z); // expect all bits as one
+  
+  int a = (x >> 16) & x;
+  int b = (a >> 8) & a; // 8
+  int c = (b >> 4) & b; // 4 (0b1010)
+  int d = (c >> 2) & c; // 0x10
+  return (d >> 1) & 1;
 }
 /* 
  * negate - return -x 
