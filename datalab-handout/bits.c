@@ -246,7 +246,15 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  // int diff = y - z;
+  int diff = y + (~z + 1);
+  // x true => 0xffff, false => 0x0
+  // int mask = !x - 1;
+  int mask = !x + (~0);
+  // set delta = y - z (result = y) if x else 0
+  int delta = mask & diff;
+
+  return z + delta;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
