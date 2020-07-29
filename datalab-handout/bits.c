@@ -217,7 +217,26 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  // int base = x & (~0xF); // set bits on 0..4 to 0
+  // int base_xor = base ^ 0x30; // base_xor should be 0 if is ascii
+  // int is_base_ok = !base_xor;
+
+  // // range
+  // int third = (x >> 3) & 1;
+  // int middle_ok = !((x >> 1) & 0x3); // 100x
+  // int is_range_ok = (!third) | (!!third & middle_ok);
+  
+  // return is_base_ok & is_range_ok;
+
+  // ge = (max - x) >= 0
+  int max = 0x39;
+  int neg_x = ~x + 1;
+  int ge = !((max + neg_x) >> 31);
+  // le = (x - min) >= 0
+  int min = 0x30;
+  int neg_min = ~min + 1;
+  int le = !((x + neg_min) >> 31);
+  return le & ge;
 }
 /* 
  * conditional - same as x ? y : z 
