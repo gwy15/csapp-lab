@@ -1410,44 +1410,47 @@ Disassembly of section .text:
   401201:	41 5e                	pop    %r14
   401203:	c3                   	retq   
 
-0000000000401204 <fun7>:
+0000000000401204 <fun7>:                                          # rdi = root,  rsi = x
   401204:	48 83 ec 08          	sub    $0x8,%rsp
   401208:	48 85 ff             	test   %rdi,%rdi
-  40120b:	74 2b                	je     401238 <fun7+0x34>
-  40120d:	8b 17                	mov    (%rdi),%edx
-  40120f:	39 f2                	cmp    %esi,%edx
-  401211:	7e 0d                	jle    401220 <fun7+0x1c>
-  401213:	48 8b 7f 08          	mov    0x8(%rdi),%rdi
+  40120b:	74 2b                	je     .fail 401238 <fun7+0x34>   # assert rdi != 0
+  40120d:	8b 17                	mov    (%rdi),%edx                # rdx = root->val;
+  40120f:	39 f2                	cmp    %esi,%edx                  # val  ~  x
+  401211:	7e 0d                	jle    401220 <fun7+0x1c>         # if val <= x: goto le
+  
+  401213:	48 8b 7f 08          	mov    0x8(%rdi),%rdi             # rdi = root->left
   401217:	e8 e8 ff ff ff       	callq  401204 <fun7>
   40121c:	01 c0                	add    %eax,%eax
-  40121e:	eb 1d                	jmp    40123d <fun7+0x39>
-  401220:	b8 00 00 00 00       	mov    $0x0,%eax
-  401225:	39 f2                	cmp    %esi,%edx
-  401227:	74 14                	je     40123d <fun7+0x39>
-  401229:	48 8b 7f 10          	mov    0x10(%rdi),%rdi
-  40122d:	e8 d2 ff ff ff       	callq  401204 <fun7>
-  401232:	8d 44 00 01          	lea    0x1(%rax,%rax,1),%eax
-  401236:	eb 05                	jmp    40123d <fun7+0x39>
-  401238:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+  40121e:	eb 1d                	jmp    .return 40123d <fun7+0x39>
+.le
+  401220:	b8 00 00 00 00       	mov    $0x0,%eax                  # rax = 0
+  401225:	39 f2                	cmp    %esi,%edx                  # if rsi == rdx:
+  401227:	74 14                	je     .return 40123d <fun7+0x39> #   return 0
+  401229:	48 8b 7f 10          	mov    0x10(%rdi),%rdi            # rdi = root->right
+  40122d:	e8 d2 ff ff ff       	callq  401204 <fun7>              # rax = fun7(rdi, rsi)
+  401232:	8d 44 00 01          	lea    0x1(%rax,%rax,1),%eax      # rax = rax + rax + 1
+  401236:	eb 05                	jmp    .return 40123d <fun7+0x39>
+.fail
+  401238:	b8 ff ff ff ff       	mov    $0xffffffff,%eax           # return -1
   40123d:	48 83 c4 08          	add    $0x8,%rsp
   401241:	c3                   	retq   
 
 0000000000401242 <secret_phase>:
   401242:	53                   	push   %rbx
   401243:	e8 56 02 00 00       	callq  40149e <read_line>
-  401248:	ba 0a 00 00 00       	mov    $0xa,%edx
-  40124d:	be 00 00 00 00       	mov    $0x0,%esi
-  401252:	48 89 c7             	mov    %rax,%rdi
+  401248:	ba 0a 00 00 00       	mov    $0xa,%edx                      # rdx = 10; 十进制
+  40124d:	be 00 00 00 00       	mov    $0x0,%esi                      # rsi = 0
+  401252:	48 89 c7             	mov    %rax,%rdi                      # rdi = rax(read_line)
   401255:	e8 76 f9 ff ff       	callq  400bd0 <strtol@plt>
-  40125a:	48 89 c3             	mov    %rax,%rbx
-  40125d:	8d 40 ff             	lea    -0x1(%rax),%eax
-  401260:	3d e8 03 00 00       	cmp    $0x3e8,%eax
-  401265:	76 05                	jbe    40126c <secret_phase+0x2a>
+  40125a:	48 89 c3             	mov    %rax,%rbx                      # rbx = parsed int x
+  40125d:	8d 40 ff             	lea    -0x1(%rax),%eax                # rax = x - 1
+  401260:	3d e8 03 00 00       	cmp    $0x3e8,%eax                    # assert x-1 <= 1000
+  401265:	76 05                	jbe    40126c <secret_phase+0x2a>     # 0 < x <= 1001
   401267:	e8 ce 01 00 00       	callq  40143a <explode_bomb>
-  40126c:	89 de                	mov    %ebx,%esi
-  40126e:	bf f0 30 60 00       	mov    $0x6030f0,%edi
+  40126c:	89 de                	mov    %ebx,%esi                      # rsi = x
+  40126e:	bf f0 30 60 00       	mov    $0x6030f0,%edi                 # rdi = root
   401273:	e8 8c ff ff ff       	callq  401204 <fun7>
-  401278:	83 f8 02             	cmp    $0x2,%eax
+  401278:	83 f8 02             	cmp    $0x2,%eax                      # assert return == 2
   40127b:	74 05                	je     401282 <secret_phase+0x40>
   40127d:	e8 b8 01 00 00       	callq  40143a <explode_bomb>
   401282:	bf 38 24 40 00       	mov    $0x402438,%edi
@@ -1712,18 +1715,18 @@ Disassembly of section .text:
   4015cf:	00 00 
   4015d1:	48 89 44 24 68       	mov    %rax,0x68(%rsp)
   4015d6:	31 c0                	xor    %eax,%eax                  # eax = 0
-  4015d8:	83 3d 81 21 20 00 06 	cmpl   $0x6,0x202181(%rip)        # 603760 <num_input_strings>
-  4015df:	75 5e                	jne    40163f <phase_defused+0x7b>
-  4015e1:	4c 8d 44 24 10       	lea    0x10(%rsp),%r8
-  4015e6:	48 8d 4c 24 0c       	lea    0xc(%rsp),%rcx
-  4015eb:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx
-  4015f0:	be 19 26 40 00       	mov    $0x402619,%esi
-  4015f5:	bf 70 38 60 00       	mov    $0x603870,%edi
+  4015d8:	83 3d 81 21 20 00 06 	cmpl   $0x6,0x202181(%rip)        # 603760 <num_input_strings> ; 在 read_line 里面自增
+  4015df:	75 5e                	jne    40163f <phase_defused+0x7b>  # 如果不是第六关，跳过
+  4015e1:	4c 8d 44 24 10       	lea    0x10(%rsp),%r8               # r8 = rsp + 16
+  4015e6:	48 8d 4c 24 0c       	lea    0xc(%rsp),%rcx               # rcx = rsp + 12
+  4015eb:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx               # rdx = rsp + 8
+  4015f0:	be 19 26 40 00       	mov    $0x402619,%esi               # esi = "%d %d %s"
+  4015f5:	bf 70 38 60 00       	mov    $0x603870,%edi               # edi = "<string from phase 4>"
   4015fa:	e8 f1 f5 ff ff       	callq  400bf0 <__isoc99_sscanf@plt>
   4015ff:	83 f8 03             	cmp    $0x3,%eax
   401602:	75 31                	jne    401635 <phase_defused+0x71>
-  401604:	be 22 26 40 00       	mov    $0x402622,%esi
-  401609:	48 8d 7c 24 10       	lea    0x10(%rsp),%rdi
+  401604:	be 22 26 40 00       	mov    $0x402622,%esi               # rsi = "DrEvil"
+  401609:	48 8d 7c 24 10       	lea    0x10(%rsp),%rdi              # rdi = rsp + 12 = rcx
   40160e:	e8 25 fd ff ff       	callq  401338 <strings_not_equal>
   401613:	85 c0                	test   %eax,%eax
   401615:	75 1e                	jne    401635 <phase_defused+0x71>
@@ -1732,9 +1735,11 @@ Disassembly of section .text:
   401621:	bf 20 25 40 00       	mov    $0x402520,%edi
   401626:	e8 e5 f4 ff ff       	callq  400b10 <puts@plt>
   40162b:	b8 00 00 00 00       	mov    $0x0,%eax
-  401630:	e8 0d fc ff ff       	callq  401242 <secret_phase>
-  401635:	bf 58 25 40 00       	mov    $0x402558,%edi
+  401630:	e8 0d fc ff ff       	callq  401242 <secret_phase>        # 进入 secret_phase
+.wrong
+  401635:	bf 58 25 40 00       	mov    $0x402558,%edi             # 第六关通过的提示
   40163a:	e8 d1 f4 ff ff       	callq  400b10 <puts@plt>
+.normal_exit
   40163f:	48 8b 44 24 68       	mov    0x68(%rsp),%rax
   401644:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
   40164b:	00 00 
