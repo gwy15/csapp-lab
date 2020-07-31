@@ -4629,21 +4629,25 @@ Disassembly of section .text:
   401a42:	55                   	push   %rbp
   401a43:	53                   	push   %rbx
   401a44:	49 89 fc             	mov    %rdi,%r12
-  401a47:	c7 05 b3 36 20 00 00 	movl   $0x0,0x2036b3(%rip)        # 605104 <gets_cnt>
+  401a47:	c7 05 b3 36 20 00 00 	movl   $0x0,0x2036b3(%rip)        # 605104 <gets_cnt> = 0
   401a4e:	00 00 00 
-  401a51:	48 89 fb             	mov    %rdi,%rbx
-  401a54:	eb 11                	jmp    401a67 <Gets+0x27>
-  401a56:	48 8d 6b 01          	lea    0x1(%rbx),%rbp
-  401a5a:	88 03                	mov    %al,(%rbx)
-  401a5c:	0f b6 f8             	movzbl %al,%edi
-  401a5f:	e8 3c ff ff ff       	callq  4019a0 <save_char>
-  401a64:	48 89 eb             	mov    %rbp,%rbx
-  401a67:	48 8b 3d 62 2a 20 00 	mov    0x202a62(%rip),%rdi        # 6044d0 <infile>
-  401a6e:	e8 4d f3 ff ff       	callq  400dc0 <_IO_getc@plt>
-  401a73:	83 f8 ff             	cmp    $0xffffffff,%eax
-  401a76:	74 05                	je     401a7d <Gets+0x3d>
-  401a78:	83 f8 0a             	cmp    $0xa,%eax
-  401a7b:	75 d9                	jne    401a56 <Gets+0x16>
+  401a51:	48 89 fb             	mov    %rdi,%rbx                  # rbx = buf (char*)
+  401a54:	eb 11                	jmp    401a67 <Gets+0x27>         # goto loop
+  .next:
+  401a56:	48 8d 6b 01          	lea    0x1(%rbx),%rbp             # rbp = ptr+1 (next_ptr)
+  401a5a:	88 03                	mov    %al,(%rbx)                 # *buf = char
+  401a5c:	0f b6 f8             	movzbl %al,%edi                   # edi = char
+  401a5f:	e8 3c ff ff ff       	callq  4019a0 <save_char>         # save_char(char)
+  401a64:	48 89 eb             	mov    %rbp,%rbx                  # buf = next_ptr
+  .loop:
+  401a67:	48 8b 3d 62 2a 20 00 	mov    0x202a62(%rip),%rdi        # 6044d0 <infile> rdi = infile
+  401a6e:	e8 4d f3 ff ff       	callq  400dc0 <_IO_getc@plt>      # getc
+  401a73:	83 f8 ff             	cmp    $0xffffffff,%eax           # if char == -1 (EOF)
+  401a76:	74 05                	je     401a7d <Gets+0x3d>         #   end
+  401a78:	83 f8 0a             	cmp    $0xa,%eax                  # if char == '\n'
+  401a7b:	75 d9                	jne    401a56 <Gets+0x16>         #   end
+                                                                ; # else: goto next
+  .end:
   401a7d:	c6 03 00             	movb   $0x0,(%rbx)
   401a80:	b8 00 00 00 00       	mov    $0x0,%eax
   401a85:	e8 6e ff ff ff       	callq  4019f8 <save_term>
