@@ -4655,7 +4655,7 @@ Disassembly of section .text:
   401a8d:	5b                   	pop    %rbx
   401a8e:	5d                   	pop    %rbp
   401a8f:	41 5c                	pop    %r12
-  401a91:	c3                   	retq   
+  401a91:	c3                   	retq                              # rdi = infile
 
 0000000000401a92 <notify_server>:
   401a92:	53                   	push   %rbx
