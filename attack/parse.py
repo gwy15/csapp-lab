@@ -39,14 +39,14 @@ class Segment:
                 if r == '<ret>': # a ret instruction is no use
                     i += 1
                     continue
-                print(self)
-                print('    !! exploitable address found!:')
+                # print(self)
+                # print('    !! exploitable address found!:')
                 addr = self.addr + i
-                print('    !! from addr 0x{:x}: {}'.format(
+                print('0x{:x}: {}'.format(
                     addr,
                     ' '.join(f'{h:02x}' for h in ins.hexes[i:])
                 ))
-                print('\n'.join('        ' + i for i in r.split(';')))
+                print('\n'.join('    ' + i for i in r.split(';')))
                 return
 
             i += 1
@@ -148,6 +148,14 @@ if __name__ == '__main__':
         'setval_470',
         'setval_426',
         'getval_280',
+        # phase 5
+        'add_xy', 'getval_481', 'setval_296', 'addval_113', 'addval_490',
+        'getval_226', 'setval_384', 'addval_190', 'setval_276', 'addval_436',
+        'getval_345', 'addval_479', 'addval_187', 'setval_248', 'getval_159',
+        'addval_110', 'addval_487', 'addval_201', 'getval_272', 'getval_155',
+        'setval_299', 'addval_404', 'getval_311', 'setval_167', 'setval_328',
+        'setval_450', 'addval_358', 'addval_124', 'getval_169', 'setval_181',
+        'addval_184', 'getval_472', 'setval_350',
     ]
     for func in exploit_funcs:
         segment = segments[func]
